@@ -120,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
     public void btnLoadData(View view) {
 
         currWeatherURL = "http://api.openweathermap.org/data/2.5/weather?lat="+Coordinates.latitude+"&lon="+Coordinates.longitude+"&appid=dac392b2d2745b3adf08ca26054d78c4&lang=ru";
-
+        Log.d("", currWeatherURL);
         if (wg.getStatus() == AsyncTask.Status.RUNNING)
             wg.cancel(true);
 
@@ -148,6 +148,7 @@ public class MainActivity extends AppCompatActivity {
 
         } else
             imageView.setImageResource(R.drawable.nodata);
+//        imageView.
     }
 
     public void btnClickCity(View view) {
