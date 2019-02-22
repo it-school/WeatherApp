@@ -159,9 +159,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void btnClickCity(View view) {
-        Intent map = new Intent(this, MapsActivity.class);
+//        Intent map = new Intent(this, MapsActivity.class);
 //        startActivity(map);
-        startActivityForResult(map, 1);
+//        startActivityForResult(map, 1);
 
 //        MapsActivity map = new MapsActivity();
 //       setContentView(R.layout.activity_maps);
