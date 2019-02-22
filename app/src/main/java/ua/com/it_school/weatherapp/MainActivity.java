@@ -35,6 +35,7 @@ import java.util.TimeZone;
 public class MainActivity extends AppCompatActivity {
 
     ImageView imageView;
+    ImageView windImage;
     Button button;
     String jsonIn, text;
     TextView textView;
@@ -55,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         imageView = findViewById(R.id.imageView);
+        windImage = findViewById(R.id.windImage);
         button = findViewById(R.id.buttonLoadData);
         textView = findViewById(R.id.textView);
         jsonIn = "";//"{\"coord\":{\"lon\":30.73,\"lat\":46.48},\"weather\":[{\"id\":800,\"main\":\"Clear\",\"description\":\"ясно\",\"icon\":\"01d\"}],\"base\":\"stations\",\"main\":{\"temp\":296.15,\"pressure\":1020,\"humidity\":33,\"temp_min\":296.15,\"temp_max\":296.15},\"visibility\":10000,\"wind\":{\"speed\":3,\"deg\":150},\"clouds\":{\"all\":0},\"dt\":1528381800,\"sys\":{\"type\":1,\"id\":7366,\"message\":0.0021,\"country\":\"UA\",\"sunrise\":1528337103,\"sunset\":1528393643},\"id\":698740,\"name\":\"Odessa\",\"cod\":200}";
@@ -120,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
     public void btnLoadData(View view) {
 
         currWeatherURL = "http://api.openweathermap.org/data/2.5/weather?lat="+Coordinates.latitude+"&lon="+Coordinates.longitude+"&appid=dac392b2d2745b3adf08ca26054d78c4&lang=ru";
-
+        currWeatherURL = "https://api.openweathermap.org/data/2.5/forecast/daily?lat="+Coordinates.latitude+"&lon="+Coordinates.longitude+"&appid=b1b15e88fa797225412429c1c50c122a1";
         if (wg.getStatus() == AsyncTask.Status.RUNNING)
             wg.cancel(true);
 
@@ -145,6 +147,13 @@ public class MainActivity extends AppCompatActivity {
                 imageView.setImageResource(R.drawable.cloud4);
 
             imageView.setBackgroundResource(R.drawable.sun);
+
+            // draw wind direction
+            windImage.setImageResource(R.drawable.arrow);
+            windImage.setRotation(main.getDeg()+90);
+            windImage.setScaleX(0.5f);
+            windImage.setScaleY(0.5f);
+            windImage.animate();
         } else
             imageView.setImageResource(R.drawable.nodata);
     }
