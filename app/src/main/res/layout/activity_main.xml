@@ -40,7 +40,6 @@
             android:id="@+id/textView"
             android:layout_width="match_parent"
             android:layout_height="128dp"
-            android:text=""
             android:textSize="18sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintHorizontal_bias="0.5"

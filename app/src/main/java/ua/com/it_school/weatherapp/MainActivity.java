@@ -7,6 +7,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -63,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
         message = "";
      //   currWeatherURL = "http://api.openweathermap.org/data/2.5/weather?id=698740&appid=dac392b2d2745b3adf08ca26054d78c4&lang=ru";
         currWeatherURL = "http://api.openweathermap.org/data/2.5/weather?lat="+Coordinates.latitude+"&lon="+Coordinates.longitude+"&appid=dac392b2d2745b3adf08ca26054d78c4&lang=ru";
-// repair static properties
+
         wg = new WeatherGetter();
         wg.execute();
     }
@@ -83,7 +84,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (cont)
-
             try {
                 String temp1 = "";
                 JSONObject jsonMain = (JSONObject) json.get("main");
@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
                 int humidity = jsonMain.getInt("humidity");
 
                 SimpleDateFormat sm = new SimpleDateFormat("d.M.Y H:m");  // https://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html
-                sm.setTimeZone(TimeZone.getTimeZone("GMT+3"));
+                sm.setTimeZone(TimeZone.getTimeZone("GMT+2"));
                 Date date = new Date(json.getLong("dt") * 1000);
 
                 JSONArray jsonWeather = (JSONArray) json.get("weather");
@@ -127,7 +127,7 @@ public class MainActivity extends AppCompatActivity {
         wg = new WeatherGetter();
         wg.execute();
         ParseWeather();
-        drawWeather();
+//        drawWeather();
     }
 
     public void drawWeather() {
@@ -145,13 +145,12 @@ public class MainActivity extends AppCompatActivity {
                 imageView.setImageResource(R.drawable.cloud4);
 
             imageView.setBackgroundResource(R.drawable.sun);
-
         } else
             imageView.setImageResource(R.drawable.nodata);
     }
 
     public void btnClickCity(View view) {
-        Intent map = new Intent(MainActivity.this, MapsActivity.class);
+        Intent map = new Intent(this, MapsActivity.class);
 //        startActivity(map);
         startActivityForResult(map, 1);
 
@@ -160,8 +159,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if ((requestCode == 1) && (resultCode == 1)) {
+    protected void onActivityResult(int requestCode, int resultCode, @NonNull Intent data) {
+        if ((requestCode == 1) && (resultCode == 1) /* && data != null */ ) {
             Coordinates.longitude = data.getDoubleExtra("longitude", Coordinates.longitude);
             Coordinates.latitude = data.getDoubleExtra("latitude", Coordinates.latitude);
 
@@ -230,8 +229,9 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected Void doInBackground(Void... params) {
             ConnectAndGetData(currWeatherURL);
-            String url = "http://study.cc.ua";
 /*
+            String url = "http://study.cc.ua";
+
             try {
                   page = Jsoup.connect(url).get();// Connect to the web site
                   message = page.text() ;           // Get the html document title
