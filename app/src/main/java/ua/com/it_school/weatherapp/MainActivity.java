@@ -5,10 +5,8 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -65,8 +63,8 @@ public class MainActivity extends AppCompatActivity {
         isDataLoaded = false;
         isConnected = true;
         message = "";
-     //   currWeatherURL = "http://api.openweathermap.org/data/2.5/weather?id=698740&appid=dac392b2d2745b3adf08ca26054d78c4&lang=ru";
-        currWeatherURL = "http://api.openweathermap.org/data/2.5/weather?lat="+Coordinates.latitude+"&lon="+Coordinates.longitude+"&appid=dac392b2d2745b3adf08ca26054d78c4&lang=ru";
+        //   currWeatherURL = "http://api.openweathermap.org/data/2.5/weather?id=698740&appid=dac392b2d2745b3adf08ca26054d78c4&lang=ru";
+        currWeatherURL = "http://api.openweathermap.org/data/2.5/weather?lat=" + Coordinates.latitude + "&lon=" + Coordinates.longitude + "&appid=dac392b2d2745b3adf08ca26054d78c4&lang=ru";
 
         wg = new WeatherGetter();
         wg.execute();
@@ -116,14 +114,14 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
                 //drawWeather();
             }
-            textView.setText(main.toString());
-            drawWeather();
-   }
+        textView.setText(main.toString());
+        drawWeather();
+    }
 
     public void btnLoadData(View view) {
 
-        currWeatherURL = "http://api.openweathermap.org/data/2.5/weather?lat="+Coordinates.latitude+"&lon="+Coordinates.longitude+"&appid=dac392b2d2745b3adf08ca26054d78c4&lang=ru";
-        currWeatherURL = "https://api.openweathermap.org/data/2.5/forecast/daily?lat="+Coordinates.latitude+"&lon="+Coordinates.longitude+"&appid=b1b15e88fa797225412429c1c50c122a1";
+        currWeatherURL = "http://api.openweathermap.org/data/2.5/weather?lat=" + Coordinates.latitude + "&lon=" + Coordinates.longitude + "&appid=dac392b2d2745b3adf08ca26054d78c4&lang=ru";
+        //currWeatherURL = "https://api.openweathermap.org/data/2.5/forecast/daily?lat="+Coordinates.latitude+"&lon="+Coordinates.longitude+"&appid=b1b15e88fa797225412429c1c50c122a1";
         if (wg.getStatus() == AsyncTask.Status.RUNNING)
             wg.cancel(true);
 
@@ -151,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
 
             // draw wind direction
             windImage.setImageResource(R.drawable.arrow);
-            windImage.setRotation(main.getDeg()+90);
+            windImage.setRotation(main.getDeg() + 90);
             windImage.setScaleX(0.5f);
             windImage.setScaleY(0.5f);
             windImage.animate();
@@ -160,10 +158,28 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void btnClickCity(View view) {
-        String geoUriString = "geo:30.73,46?z=10";
-        //String geoUriString = "geo:0,0?q=Ukraine";
+        // Street View
+/*
+        String geoUriString = "google.streetview:cbll="+Coordinates.getCoordinates()+"&cbp=1,99.56,,1,2.0&mz=19";
+        Uri geoUri = Uri.parse(geoUriString);
+        Intent streetIntent = new Intent(Intent.ACTION_VIEW, geoUri);
+        if (streetIntent.resolveActivity(getPackageManager()) != null) {
+            startActivity(streetIntent);
+        }
+*/
+// Clean Google Map
+/*
+        String geoUriString = "geo:46.460323,30.749954?z=3";
+        //String geoUriString = "geo:0,0?q=ONPU";
         //geo:0,0?q=address
-//        String geoUriString = "google.streetview:cbll=46.939448,30.328264&cbp=1,99.56,,1,2.0&mz=19";
+        //String geoUriString = "google.streetview:cbll=46.460323,30.749954&cbp=1,99.56,,1,2.0&mz=19";
+
+        Uri geoUri = Uri.parse(geoUriString);
+        Intent mapIntent = new Intent(Intent.ACTION_VIEW, geoUri);
+        if (mapIntent.resolveActivity(getPackageManager()) != null) {
+            startActivityForResult(mapIntent, 1);
+        }*/
+
 //        google.streetview:cbll=lat,lng&cbp=1,yaw,,pitch,zoom&mz=mapZoom
 //        lat - широта
 //        lng	- долгота
@@ -172,23 +188,16 @@ public class MainActivity extends AppCompatActivity {
 //        zoom - масштаб панорамы. 1.0 = нормальный, 2.0 = приближение в 2 раза, 3.0 = в 4 раза и так далее
 //        mapZoom	- масштабирование места карты, связанное с панорамой. Это значение используется при переходе на Карты.
 
-        Uri geoUri = Uri.parse(geoUriString);
-        Intent mapIntent = new Intent(Intent.ACTION_VIEW, geoUri);
-        if (mapIntent.resolveActivity(getPackageManager()) != null) {
-            startActivity(mapIntent);
-        }
-//
-//        Intent map = new Intent(this, MapsActivity.class);
-////       startActivity(map);
-//        startActivityForResult(map, 1);
-//
-////        MapsActivity map = new MapsActivity();
+        Intent map = new Intent(MainActivity.this, MapsActivity.class);
+        startActivityForResult(map, 1);
+
+//        MapsActivity map = new MapsActivity();
 //        setContentView(R.layout.activity_maps);
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, @NonNull Intent data) {
-        if ((requestCode == 1) && (resultCode == 1) /* && data != null */ ) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if ((requestCode == 1) && (resultCode == 1)) {
             Coordinates.longitude = data.getDoubleExtra("longitude", Coordinates.longitude);
             Coordinates.latitude = data.getDoubleExtra("latitude", Coordinates.latitude);
 
@@ -196,8 +205,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    class WeatherGetter extends AsyncTask<Void, Void, Void>
-    {
+    class WeatherGetter extends AsyncTask<Void, Void, Void> {
         private String readAll(Reader rd) throws IOException {
             StringBuilder sb = new StringBuilder();
             int cp;
@@ -207,8 +215,7 @@ public class MainActivity extends AppCompatActivity {
             return sb.toString();
         }
 
-        public void ConnectAndGetData(String url)
-        {
+        public void ConnectAndGetData(String url) {
 
             //String url = "http://api.openweathermap.org/data/2.5/weather?id=698740&appid=dac392b2d2745b3adf08ca26054d78c4&lang=ru";
             //String urlForecast = "api.openweathermap.org/data/2.5/forecast?id=698740&appid=dac392b2d2745b3adf08ca26054d78c4&lang=ru";
@@ -218,9 +225,7 @@ public class MainActivity extends AppCompatActivity {
             ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
             NetworkInfo netInfo = cm.getActiveNetworkInfo();
 
-            if(netInfo.isConnected())
-
-            {
+            if (netInfo.isConnected()) {
                 try {
                     is = new URL(url).openStream();
                     try {
@@ -241,10 +246,7 @@ public class MainActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
 
-            }
-            else
-
-            {
+            } else {
                 isConnected = false;
             }
         }
@@ -278,7 +280,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Void result) {
             //textView.setText("\n------------------\n" + jsonIn+"\n--------------------\n");
-           ParseWeather();
+            ParseWeather();
 /*
             Element tableWth = page.select("table").first();
             Elements dates = tableWth.select("th[colspan=4]"); // даты дней недели для прогноза (их 3)
@@ -305,8 +307,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        protected void onCancelled()
-        {
+        protected void onCancelled() {
             super.onCancelled();
             Log.d("", "Process canceling");
         }

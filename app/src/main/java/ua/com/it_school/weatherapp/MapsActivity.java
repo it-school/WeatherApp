@@ -11,6 +11,8 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+//import com.google.android.gms.location.LocationServices;
+
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
@@ -24,6 +26,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
     }
+
 
 
     @Override
@@ -52,31 +55,31 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Coordinates.latitude = currentPosition.latitude;
         Coordinates.longitude = currentPosition.longitude;
         */
-
-//        try {
-//                Task locationResult =  (LocationServices.getFusedLocationProviderClient(this)).getLastLocation();
-//                locationResult.addOnCompleteListener(this, new OnCompleteListener() {
-//                    @Override
-//                    public void onComplete(@NonNull Task task) {
-//                        if (task.isSuccessful()) {
-//                            Location mLastKnownLocation = mMap.getMyLocation();
-//                            // Set the map's camera position to the current location of the device.
-//                            mLastKnownLocation = (Location) task.getResult();
-//                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
-//                                    new LatLng(mLastKnownLocation.getLatitude(),
-//                                            mLastKnownLocation.getLongitude()), 1));
-//                        } else {
-//                            String TAG = null;
-//                            Log.e(TAG, "Exception: %s", task.getException());
-//                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(Odessa, 1));
-//                            mMap.getUiSettings().setMyLocationButtonEnabled(false);
-//                        }
-//                    }
-//                });
-//        } catch(SecurityException e)  {
-//            Log.e("Exception: %s", e.getMessage());
-//        }
-
+/*
+        try {
+                Task locationResult =  (LocationServices.getFusedLocationProviderClient(this)).getLastLocation();
+                locationResult.addOnCompleteListener(this, new OnCompleteListener() {
+                    @Override
+                    public void onComplete(@NonNull Task task) {
+                        if (task.isSuccessful()) {
+                            Location mLastKnownLocation = mMap.getMyLocation();
+                            // Set the map's camera position to the current location of the device.
+                            mLastKnownLocation = (Location) task.getResult();
+                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                                    new LatLng(mLastKnownLocation.getLatitude(),
+                                            mLastKnownLocation.getLongitude()), 1));
+                        } else {
+                            String TAG = null;
+                            Log.e(TAG, "Exception: %s", task.getException());
+                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(Odessa, 1));
+                            mMap.getUiSettings().setMyLocationButtonEnabled(false);
+                        }
+                    }
+                });
+        } catch(SecurityException e)  {
+            Log.e("Exception: %s", e.getMessage());
+        }
+*/
 
     }
 }
