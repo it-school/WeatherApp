@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -159,12 +160,30 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void btnClickCity(View view) {
-//        Intent map = new Intent(this, MapsActivity.class);
-//        startActivity(map);
-//        startActivityForResult(map, 1);
+        String geoUriString = "geo:30.73,46?z=10";
+        //String geoUriString = "geo:0,0?q=Ukraine";
+        //geo:0,0?q=address
+//        String geoUriString = "google.streetview:cbll=46.939448,30.328264&cbp=1,99.56,,1,2.0&mz=19";
+//        google.streetview:cbll=lat,lng&cbp=1,yaw,,pitch,zoom&mz=mapZoom
+//        lat - широта
+//        lng	- долгота
+//        yaw	- центр панорамы в градусах по часовой стрелке с севера. Обязательно используйте две запятые.
+//        pitch - центр обзора панорамы в градусах от -90 (взор вверх) до 90 (взгляд вниз)
+//        zoom - масштаб панорамы. 1.0 = нормальный, 2.0 = приближение в 2 раза, 3.0 = в 4 раза и так далее
+//        mapZoom	- масштабирование места карты, связанное с панорамой. Это значение используется при переходе на Карты.
 
-//        MapsActivity map = new MapsActivity();
-//       setContentView(R.layout.activity_maps);
+        Uri geoUri = Uri.parse(geoUriString);
+        Intent mapIntent = new Intent(Intent.ACTION_VIEW, geoUri);
+        if (mapIntent.resolveActivity(getPackageManager()) != null) {
+            startActivity(mapIntent);
+        }
+//
+//        Intent map = new Intent(this, MapsActivity.class);
+////       startActivity(map);
+//        startActivityForResult(map, 1);
+//
+////        MapsActivity map = new MapsActivity();
+//        setContentView(R.layout.activity_maps);
     }
 
     @Override
