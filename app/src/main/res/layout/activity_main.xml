@@ -18,10 +18,53 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0">
 
+        <android.support.constraint.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="319dp">
+
+            <ImageView
+                android:id="@+id/windRose"
+                android:layout_width="130dp"
+                android:layout_height="130dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/roza"
+                android:scaleType="fitCenter"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/imageView"
+                app:srcCompat="@drawable/transparent" />
+
+            <ImageView
+                android:id="@+id/imageView"
+                android:layout_width="200dp"
+                android:layout_height="200dp"
+                android:layout_marginEnd="60dp"
+                android:layout_marginStart="60dp"
+                android:contentDescription=""
+                android:scaleType="fitCenter"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <ImageView
+                android:id="@+id/windImage"
+                android:layout_width="130dp"
+                android:layout_height="130dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:scaleType="fitCenter"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/imageView"
+                app:srcCompat="@drawable/transparent" />
+
+        </android.support.constraint.ConstraintLayout>
+
         <TextView
             android:id="@+id/textView"
             android:layout_width="match_parent"
-            android:layout_height="439dp"
+            android:layout_height="128dp"
             android:textSize="18sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
@@ -49,6 +92,17 @@
                 tools:layout_editor_absoluteY="350dp"
                 tools:text="@string/ButtonText" />
 
+            <Button
+                android:id="@+id/buttonChooseCity"
+                android:layout_width="175dp"
+                android:layout_height="50dp"
+                android:layout_weight="1"
+                android:onClick="btnClickCity"
+                android:text="@string/buttonChooseCity"
+                android:visibility="visible"
+                tools:layout_editor_absoluteX="100dp"
+                tools:layout_editor_absoluteY="350dp"
+                tools:text="@string/buttonChooseCity" />
         </LinearLayout>
 
     </LinearLayout>
