@@ -207,8 +207,8 @@ public class MainActivity extends AppCompatActivity {
 
     public void btnStretView(View view) {
         // Street View
-        //String geoUriString = "google.streetview:cbll=46.414382,10.013988&cbp=1,90,,0,1.0&mz=19";
-        String geoUriString = "google.streetview:cbll=" + Coordinates.getCoordinates() + "8&cbp=1,90,,0,1.0&mz=19";
+        String geoUriString = "google.streetview:cbll=46.414382,10.013988&cbp=1,90,,0,1.0&mz=19";
+        //String geoUriString = "google.streetview:cbll=" + Coordinates.getCoordinates() + "8&cbp=1,90,,0,1.0&mz=19";
         Uri geoUri = Uri.parse(geoUriString);
         Intent streetIntent = new Intent(Intent.ACTION_VIEW, geoUri);
         if (streetIntent.resolveActivity(getPackageManager()) != null) {
