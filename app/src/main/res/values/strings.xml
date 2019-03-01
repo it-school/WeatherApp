@@ -4,4 +4,9 @@
     <string name="BottomText">Current weather in Odessa</string>
     <string name="title_activity_maps">Map</string>
     <string name="buttonChooseCity">Choose city</string>
+    <string name="weatherUpdate">Weather info has been updated</string>
+    <string name="windSpeed">m/s</string>
+    <string name="noData">No data loaded</string>
+    <string name="tempC" translatable="false">U+2103 C</string>
+    <string name="streetView">Street View</string>
 </resources>

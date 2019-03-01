@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -14,6 +15,7 @@ import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -29,6 +31,7 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
 
 public class MainActivity extends AppCompatActivity {
@@ -38,6 +41,9 @@ public class MainActivity extends AppCompatActivity {
     Button button;
     String jsonIn, text;
     TextView textView;
+    TextView windTextView;
+    TextView windTextView2;
+    TextView tempTextView;
     WebView webView;
     Resources res;
     Main main;
@@ -58,6 +64,9 @@ public class MainActivity extends AppCompatActivity {
         windImage = findViewById(R.id.windImage);
         button = findViewById(R.id.buttonLoadData);
         textView = findViewById(R.id.textView);
+        windTextView = findViewById(R.id.windTextView);
+        windTextView2 = findViewById(R.id.windTextView2);
+        tempTextView = findViewById(R.id.tempTextView);
         jsonIn = "";//"{\"coord\":{\"lon\":30.73,\"lat\":46.48},\"weather\":[{\"id\":800,\"main\":\"Clear\",\"description\":\"ясно\",\"icon\":\"01d\"}],\"base\":\"stations\",\"main\":{\"temp\":296.15,\"pressure\":1020,\"humidity\":33,\"temp_min\":296.15,\"temp_max\":296.15},\"visibility\":10000,\"wind\":{\"speed\":3,\"deg\":150},\"clouds\":{\"all\":0},\"dt\":1528381800,\"sys\":{\"type\":1,\"id\":7366,\"message\":0.0021,\"country\":\"UA\",\"sunrise\":1528337103,\"sunset\":1528393643},\"id\":698740,\"name\":\"Odessa\",\"cod\":200}";
         text = "";
         isDataLoaded = false;
@@ -68,10 +77,6 @@ public class MainActivity extends AppCompatActivity {
 
         wg = new WeatherGetter();
         wg.execute();
-    }
-
-    public void RefreshWeather() {
-
     }
 
     public void ParseWeather() {
@@ -111,11 +116,9 @@ public class MainActivity extends AppCompatActivity {
                 main = new Main(temp, pressure, humidity, date, description, speed, deg, clouds, name);
                 isDataLoaded = true;
             } catch (JSONException e) {
+                isDataLoaded = false;
                 e.printStackTrace();
-                //drawWeather();
             }
-        textView.setText(main.toString());
-        drawWeather();
     }
 
     public void btnLoadData(View view) {
@@ -128,45 +131,51 @@ public class MainActivity extends AppCompatActivity {
         wg = new WeatherGetter();
         wg.execute();
         ParseWeather();
-//        drawWeather();
+        drawWeather();
     }
 
     public void drawWeather() {
+        if (isDataLoaded) {
+            if (isConnected) {
+                if (main.getClouds() < 12) {
+                    imageView.setImageResource(R.drawable.transparent);
+                } else if (main.getClouds() < 25) {
+                    imageView.setImageResource(R.drawable.c1);
+                } else if (main.getClouds() < 37) {
+                    imageView.setImageResource(R.drawable.c2);
+                } else if (main.getClouds() < 50) {
+                    imageView.setImageResource(R.drawable.c3);
+                } else if (main.getClouds() < 62) {
+                    imageView.setImageResource(R.drawable.c4);
+                } else if (main.getClouds() < 75) {
+                    imageView.setImageResource(R.drawable.c5);
+                } else if (main.getClouds() < 87) {
+                    imageView.setImageResource(R.drawable.c6);
+                } else
+                    imageView.setImageResource(R.drawable.c7);
 
-        if (isConnected) {
-            if (main.getClouds() < 5) {
-                imageView.setImageResource(R.drawable.transparent);
-            } else if (main.getClouds() < 25) {
-                imageView.setImageResource(R.drawable.cloud1);
-            } else if (main.getClouds() < 50) {
-                imageView.setImageResource(R.drawable.cloud2);
-            } else if (main.getClouds() < 75) {
-                imageView.setImageResource(R.drawable.cloud3);
+                imageView.setBackgroundResource(R.drawable.sun);
+
+                // draw wind direction
+                windImage.setImageResource(R.drawable.w);
+                windImage.setRotation(main.getDeg());
+                windImage.setScaleX(0.8f);
+                windImage.setScaleY(0.8f / (16 / main.getSpeed()));
+                imageView.getBackground().setAlpha(180);
+
+//                textView.setText(main.toString());
+                windTextView.setText("" + main.getSpeed());
+                windTextView2.setText(R.string.windSpeed);
+                tempTextView.setText(String.format(Locale.getDefault(), "%.1f°C", main.getTemp()));
+
+                Toast.makeText(this.getBaseContext(), R.string.weatherUpdate, Toast.LENGTH_SHORT).show();
             } else
-                imageView.setImageResource(R.drawable.cloud4);
-
-            imageView.setBackgroundResource(R.drawable.sun);
-
-            // draw wind direction
-            windImage.setImageResource(R.drawable.arrow);
-            windImage.setRotation(main.getDeg() + 90);
-            windImage.setScaleX(0.5f);
-            windImage.setScaleY(0.5f);
-            windImage.animate();
+                imageView.setImageResource(R.drawable.nodata);
         } else
-            imageView.setImageResource(R.drawable.nodata);
+            Toast.makeText(this.getBaseContext(), R.string.noData, Toast.LENGTH_SHORT).show();
     }
 
-    public void btnClickCity(View view) {
-        // Street View
-/*
-        String geoUriString = "google.streetview:cbll="+Coordinates.getCoordinates()+"&cbp=1,99.56,,1,2.0&mz=19";
-        Uri geoUri = Uri.parse(geoUriString);
-        Intent streetIntent = new Intent(Intent.ACTION_VIEW, geoUri);
-        if (streetIntent.resolveActivity(getPackageManager()) != null) {
-            startActivity(streetIntent);
-        }
-*/
+    public void btnMapOpen(View view) {
 // Clean Google Map
 /*
         String geoUriString = "geo:46.460323,30.749954?z=3";
@@ -195,13 +204,25 @@ public class MainActivity extends AppCompatActivity {
 //        setContentView(R.layout.activity_maps);
     }
 
+
+    public void btnStretView(View view) {
+        // Street View
+        //String geoUriString = "google.streetview:cbll=46.414382,10.013988&cbp=1,90,,0,1.0&mz=19";
+        String geoUriString = "google.streetview:cbll=" + Coordinates.getCoordinates() + "8&cbp=1,90,,0,1.0&mz=19";
+        Uri geoUri = Uri.parse(geoUriString);
+        Intent streetIntent = new Intent(Intent.ACTION_VIEW, geoUri);
+        if (streetIntent.resolveActivity(getPackageManager()) != null) {
+            startActivity(streetIntent);
+        }
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if ((requestCode == 1) && (resultCode == 1)) {
             Coordinates.longitude = data.getDoubleExtra("longitude", Coordinates.longitude);
             Coordinates.latitude = data.getDoubleExtra("latitude", Coordinates.latitude);
 
-            textView.setText(Coordinates.longitude + ", " + Coordinates.latitude);
+            textView.setText(String.format(Locale.ENGLISH, "%.2f, %.2f", Coordinates.longitude, Coordinates.latitude));
         }
     }
 
@@ -281,6 +302,7 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(Void result) {
             //textView.setText("\n------------------\n" + jsonIn+"\n--------------------\n");
             ParseWeather();
+            drawWeather();
 /*
             Element tableWth = page.select("table").first();
             Elements dates = tableWth.select("th[colspan=4]"); // даты дней недели для прогноза (их 3)

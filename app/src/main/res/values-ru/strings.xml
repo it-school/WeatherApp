@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Прогноз погоды</string>
-    <string name="ButtonText">Загрузить текущие данные</string>
+    <string name="ButtonText">Обновить данные</string>
     <string name="BottomText">Текущая погода в Одессе</string>
     <string name="title_activity_maps">Карта</string>
     <string name="buttonChooseCity">Город</string>
+    <string name="weatherUpdate">Информация о погоде обновлена</string>
+    <string name="windSpeed">м/с</string>
+    <string name="noData">Нет данных о погоде</string>
+    <string name="streetView">Улицы</string>
 </resources>
