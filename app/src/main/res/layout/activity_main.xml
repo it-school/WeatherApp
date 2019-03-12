@@ -48,7 +48,7 @@
         app:srcCompat="@drawable/transparent" />
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/textViewMain"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="8dp"
@@ -67,9 +67,9 @@
 
     <Button
         android:id="@+id/buttonLoadData"
-        android:layout_width="wrap_content"
+        android:layout_width="119dp"
         android:layout_height="50dp"
-        android:layout_marginStart="16dp"
+        android:layout_marginStart="8dp"
         android:layout_marginBottom="4dp"
         android:layout_weight="1"
         android:onClick="btnLoadData"
@@ -81,11 +81,28 @@
         tools:text="@string/ButtonText" />
 
     <Button
-        android:id="@+id/buttonChooseCity"
-        android:layout_width="wrap_content"
+        android:id="@+id/buttonGPS"
+        android:layout_width="56dp"
         android:layout_height="50dp"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
+        android:layout_marginBottom="4dp"
+        android:layout_weight="1"
+        android:onClick="btnGPS"
+        android:text="@string/GPS"
+        android:textSize="12sp"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/buttonStreetView"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toEndOf="@+id/buttonChooseCity"
+        tools:text="@string/GPS" />
+
+    <Button
+        android:id="@+id/buttonChooseCity"
+        android:layout_width="97dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="8dp"
         android:layout_marginBottom="4dp"
         android:layout_weight="1"
         android:onClick="btnMapOpen"
@@ -93,7 +110,6 @@
         android:textSize="12sp"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/buttonStreetView"
         app:layout_constraintStart_toEndOf="@+id/buttonLoadData"
         tools:text="@string/buttonChooseCity" />
 
@@ -101,7 +117,7 @@
         android:id="@+id/buttonStreetView"
         android:layout_width="wrap_content"
         android:layout_height="50dp"
-        android:layout_marginEnd="16dp"
+        android:layout_marginEnd="8dp"
         android:layout_marginBottom="4dp"
         android:layout_weight="1"
         android:onClick="btnStretView"

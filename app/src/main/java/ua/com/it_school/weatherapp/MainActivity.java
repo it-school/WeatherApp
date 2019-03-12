@@ -1,13 +1,17 @@
 package ua.com.it_school.weatherapp;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -40,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
     ImageView windImage;
     Button button;
     String jsonIn, text;
-    TextView textView;
+    TextView textViewMain;
     TextView windTextView;
     TextView windTextView2;
     TextView tempTextView;
@@ -54,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
     private String FLAG;
     WeatherGetter wg;
     String message;
+    private LocationManager locationManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,18 +68,18 @@ public class MainActivity extends AppCompatActivity {
         imageView = findViewById(R.id.imageView);
         windImage = findViewById(R.id.windImage);
         button = findViewById(R.id.buttonLoadData);
-        textView = findViewById(R.id.textView);
+        textViewMain = findViewById(R.id.textViewMain);
         windTextView = findViewById(R.id.windTextView);
         windTextView2 = findViewById(R.id.windTextView2);
         tempTextView = findViewById(R.id.tempTextView);
-        jsonIn = "";//"{\"coord\":{\"lon\":30.73,\"lat\":46.48},\"weather\":[{\"id\":800,\"main\":\"Clear\",\"description\":\"ясно\",\"icon\":\"01d\"}],\"base\":\"stations\",\"main\":{\"temp\":296.15,\"pressure\":1020,\"humidity\":33,\"temp_min\":296.15,\"temp_max\":296.15},\"visibility\":10000,\"wind\":{\"speed\":3,\"deg\":150},\"clouds\":{\"all\":0},\"dt\":1528381800,\"sys\":{\"type\":1,\"id\":7366,\"message\":0.0021,\"country\":\"UA\",\"sunrise\":1528337103,\"sunset\":1528393643},\"id\":698740,\"name\":\"Odessa\",\"cod\":200}";
+        jsonIn = "{\"coord\":{\"lon\":30.73,\"lat\":46.48},\"weather\":[{\"id\":800,\"main\":\"Clear\",\"description\":\"ясно\",\"icon\":\"01d\"}],\"base\":\"stations\",\"main\":{\"temp\":296.15,\"pressure\":1020,\"humidity\":33,\"temp_min\":296.15,\"temp_max\":296.15},\"visibility\":10000,\"wind\":{\"speed\":15,\"deg\":180},\"clouds\":{\"all\":0},\"dt\":1528381800,\"sys\":{\"type\":1,\"id\":7366,\"message\":0.0021,\"country\":\"UA\",\"sunrise\":1528337103,\"sunset\":1528393643},\"id\":698740,\"name\":\"Odessa\",\"cod\":200}";
         text = "";
         isDataLoaded = false;
         isConnected = true;
         message = "";
         //   currWeatherURL = "http://api.openweathermap.org/data/2.5/weather?id=698740&appid=dac392b2d2745b3adf08ca26054d78c4&lang=ru";
         currWeatherURL = "http://api.openweathermap.org/data/2.5/weather?lat=" + Coordinates.latitude + "&lon=" + Coordinates.longitude + "&appid=dac392b2d2745b3adf08ca26054d78c4&lang=ru";
-
+        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         wg = new WeatherGetter();
         wg.execute();
     }
@@ -125,6 +130,7 @@ public class MainActivity extends AppCompatActivity {
 
         currWeatherURL = "http://api.openweathermap.org/data/2.5/weather?lat=" + Coordinates.latitude + "&lon=" + Coordinates.longitude + "&appid=dac392b2d2745b3adf08ca26054d78c4&lang=ru";
         //currWeatherURL = "https://api.openweathermap.org/data/2.5/forecast/daily?lat="+Coordinates.latitude+"&lon="+Coordinates.longitude+"&appid=b1b15e88fa797225412429c1c50c122a1";
+
         if (wg.getStatus() == AsyncTask.Status.RUNNING)
             wg.cancel(true);
 
@@ -160,10 +166,9 @@ public class MainActivity extends AppCompatActivity {
                 windImage.setImageResource(R.drawable.w);
                 windImage.setRotation(main.getDeg());
                 windImage.setScaleX(0.8f);
-                windImage.setScaleY(0.8f / (16 / main.getSpeed()));
-                imageView.getBackground().setAlpha(180);
+                windImage.setScaleY(0.8f / (16 / (main.getSpeed() > 0.1 ? main.getSpeed() : 0.1f)));
+                imageView.getBackground().setAlpha(175);
 
-//                textView.setText(main.toString());
                 windTextView.setText("" + main.getSpeed());
                 windTextView2.setText(R.string.windSpeed);
                 tempTextView.setText(String.format(Locale.getDefault(), "%.1f°C", main.getTemp()));
@@ -222,8 +227,19 @@ public class MainActivity extends AppCompatActivity {
             Coordinates.longitude = data.getDoubleExtra("longitude", Coordinates.longitude);
             Coordinates.latitude = data.getDoubleExtra("latitude", Coordinates.latitude);
 
-            textView.setText(String.format(Locale.ENGLISH, "%.2f, %.2f", Coordinates.longitude, Coordinates.latitude));
+            textViewMain.setText(String.format(Locale.ENGLISH, "%.2f, %.2f", Coordinates.longitude, Coordinates.latitude));
         }
+    }
+
+    public void btnGPS(View view) {
+        //TODO Get GPS Coordinates
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            textViewMain.setText("Current coordinates: " + Coordinates.getCoordinates());
+            return;
+        }
+        Coordinates.latitude = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER).getLatitude();
+        Coordinates.longitude = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER).getLongitude();
+        textViewMain.setText("Current coordinates: " + Coordinates.getCoordinates());
     }
 
     class WeatherGetter extends AsyncTask<Void, Void, Void> {
@@ -237,10 +253,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
         public void ConnectAndGetData(String url) {
-
-            //String url = "http://api.openweathermap.org/data/2.5/weather?id=698740&appid=dac392b2d2745b3adf08ca26054d78c4&lang=ru";
-            //String urlForecast = "api.openweathermap.org/data/2.5/forecast?id=698740&appid=dac392b2d2745b3adf08ca26054d78c4&lang=ru";
-
             InputStream is = null;
 
             ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -280,52 +292,13 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected Void doInBackground(Void... params) {
             ConnectAndGetData(currWeatherURL);
-/*
-            String url = "http://study.cc.ua";
-
-            try {
-                  page = Jsoup.connect(url).get();// Connect to the web site
-                  message = page.text() ;           // Get the html document title
-
-                  page = Jsoup.parse(new URL(url), 10000);
-                  message = "| "+page.text()+ " |";
-
-                  textView.setText(message);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-*/
             return null;
         }
 
         @Override
         protected void onPostExecute(Void result) {
-            //textView.setText("\n------------------\n" + jsonIn+"\n--------------------\n");
             ParseWeather();
             drawWeather();
-/*
-            Element tableWth = page.select("table").first();
-            Elements dates = tableWth.select("th[colspan=4]"); // даты дней недели для прогноза (их 3)
-            Elements rows = tableWth.select("tr");
-
-            // извлекаем даты
-            date = "";
-            for (Element d : dates)
-                date += "\t\t\t" + d.text();
-
-            // извлекаем температуру и темп. по ощущениям
-            int i = 0;
-            int r = 2;
-            Elements temperatures = tableWth.select("span[class=value m_temp c]");
-            for (Element t : temperatures) {
-                wt[r][i++] = t.text();
-                if (i > 12) {
-                    r = 6;
-                    i = 0;
-                }
-            }
-            */
-
         }
 
         @Override
