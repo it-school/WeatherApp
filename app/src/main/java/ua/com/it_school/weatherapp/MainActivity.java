@@ -209,18 +209,6 @@ public class MainActivity extends AppCompatActivity {
 //        setContentView(R.layout.activity_maps);
     }
 
-
-    public void btnStretView(View view) {
-        // Street View
-        String geoUriString = "google.streetview:cbll=46.4600233,30.749909&cbp=1,90,,0,1.0&mz=19";
-        //String geoUriString = "google.streetview:cbll=" + Coordinates.getCoordinates() + "8&cbp=1,90,,0,1.0&mz=19";
-        Uri geoUri = Uri.parse(geoUriString);
-        Intent streetIntent = new Intent(Intent.ACTION_VIEW, geoUri);
-        if (streetIntent.resolveActivity(getPackageManager()) != null) {
-            startActivity(streetIntent);
-        }
-    }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if ((requestCode == 1) && (resultCode == 1)) {
@@ -231,8 +219,20 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
+    public void btnStretView(View view) {
+        // Street View
+        String geoUriString = "google.streetview:cbll=46.4600233,30.749909&cbp=1,90,,0,1.0&mz=19";
+        // String geoUriString = "google.streetview:cbll=" + Coordinates.getCoordinates() + "8&cbp=1,90,,0,1.0&mz=19";
+        Uri geoUri = Uri.parse(geoUriString);
+        Intent streetIntent = new Intent(Intent.ACTION_VIEW, geoUri);
+        if (streetIntent.resolveActivity(getPackageManager()) != null) {
+            startActivity(streetIntent);
+        }
+    }
+
+
     public void btnGPS(View view) {
-        //TODO Get GPS Coordinates
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             textViewMain.setText("Current coordinates: " + Coordinates.getCoordinates());
             return;

@@ -5,6 +5,6 @@ public class Coordinates {
     public static double latitude = 46.460367;
 
     public static String getCoordinates() {
-        return longitude + "," + latitude;
+        return latitude + "," + longitude;
     }
 }
