@@ -194,13 +194,6 @@ public class MainActivity extends AppCompatActivity {
             startActivityForResult(mapIntent, 1);
         }*/
 
-//        google.streetview:cbll=lat,lng&cbp=1,yaw,,pitch,zoom&mz=mapZoom
-//        lat - широта
-//        lng	- долгота
-//        yaw	- центр панорамы в градусах по часовой стрелке с севера. Обязательно используйте две запятые.
-//        pitch - центр обзора панорамы в градусах от -90 (взор вверх) до 90 (взгляд вниз)
-//        zoom - масштаб панорамы. 1.0 = нормальный, 2.0 = приближение в 2 раза, 3.0 = в 4 раза и так далее
-//        mapZoom	- масштабирование места карты, связанное с панорамой. Это значение используется при переходе на Карты.
 
         Intent map = new Intent(MainActivity.this, MapsActivity.class);
         startActivityForResult(map, 1);
@@ -222,6 +215,14 @@ public class MainActivity extends AppCompatActivity {
 
     public void btnStretView(View view) {
         // Street View
+//        google.streetview:cbll=lat,lng&cbp=1,yaw,,pitch,zoom&mz=mapZoom
+//        lat - широта
+//        lng	- долгота
+//        yaw	- центр панорамы в градусах по часовой стрелке с севера. Обязательно используйте две запятые.
+//        pitch - центр обзора панорамы в градусах от -90 (взор вверх) до 90 (взгляд вниз)
+//        zoom - масштаб панорамы. 1.0 = нормальный, 2.0 = приближение в 2 раза, 3.0 = в 4 раза и так далее
+//        mapZoom	- масштабирование места карты, связанное с панорамой. Это значение используется при переходе на Карты.
+
         String geoUriString = "google.streetview:cbll=46.4600233,30.749909&cbp=1,90,,0,1.0&mz=19";
         // String geoUriString = "google.streetview:cbll=" + Coordinates.getCoordinates() + "8&cbp=1,90,,0,1.0&mz=19";
         Uri geoUri = Uri.parse(geoUriString);
