@@ -84,6 +84,9 @@ public class MainActivity extends AppCompatActivity {
         wg.execute();
     }
 
+    /**
+     * Parsing of loaded weather data
+     */
     public void ParseWeather() {
         boolean cont = false;
         JSONObject json = null;
@@ -126,7 +129,12 @@ public class MainActivity extends AppCompatActivity {
             }
     }
 
-    public void btnLoadData(View view) {
+    /**
+     * Loading current weather data for current coordinates
+     *
+     * @param view
+     */
+    public void btnLoadWeatherData(View view) {
 
         currWeatherURL = "http://api.openweathermap.org/data/2.5/weather?lat=" + Coordinates.latitude + "&lon=" + Coordinates.longitude + "&appid=dac392b2d2745b3adf08ca26054d78c4&lang=ru";
         //currWeatherURL = "https://api.openweathermap.org/data/2.5/forecast/daily?lat="+Coordinates.latitude+"&lon="+Coordinates.longitude+"&appid=b1b15e88fa797225412429c1c50c122a1";
@@ -136,8 +144,6 @@ public class MainActivity extends AppCompatActivity {
 
         wg = new WeatherGetter();
         wg.execute();
-        ParseWeather();
-        drawWeather();
     }
 
     public void drawWeather() {
@@ -180,6 +186,10 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this.getBaseContext(), R.string.noData, Toast.LENGTH_SHORT).show();
     }
 
+    /**
+     * Opens Google Maps to get new coordinates using long tap
+     * @param view
+     */
     public void btnMapOpen(View view) {
 // Clean Google Map
 /*
@@ -192,7 +202,7 @@ public class MainActivity extends AppCompatActivity {
         Intent mapIntent = new Intent(Intent.ACTION_VIEW, geoUri);
         if (mapIntent.resolveActivity(getPackageManager()) != null) {
             startActivityForResult(mapIntent, 1);
-        }*/
+}*/
 
 
         Intent map = new Intent(MainActivity.this, MapsActivity.class);
@@ -209,11 +219,16 @@ public class MainActivity extends AppCompatActivity {
             Coordinates.latitude = data.getDoubleExtra("latitude", Coordinates.latitude);
 
             textViewMain.setText(String.format(Locale.ENGLISH, "%.2f, %.2f", Coordinates.longitude, Coordinates.latitude));
+            btnLoadWeatherData(getCurrentFocus());
         }
     }
 
-
-    public void btnStretView(View view) {
+    /**
+     * Opens Google Street using view for current coordinates
+     *
+     * @param view
+     */
+    public void btnStreetView(View view) {
         // Street View
 //        google.streetview:cbll=lat,lng&cbp=1,yaw,,pitch,zoom&mz=mapZoom
 //        lat - широта
@@ -232,15 +247,17 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
-    public void btnGPS(View view) {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            textViewMain.setText("Current coordinates: " + Coordinates.getCoordinates());
-            return;
+    /**
+     * Shows description of current device coordinates
+     *
+     * @param view
+     */
+    public void btnCurrentGPSCoordinates(View view) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            Coordinates.latitude = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER).getLatitude();
+            Coordinates.longitude = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER).getLongitude();
         }
-        Coordinates.latitude = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER).getLatitude();
-        Coordinates.longitude = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER).getLongitude();
-        textViewMain.setText("Current coordinates: " + Coordinates.getCoordinates());
+        textViewMain.setText("Current device coordinates: " + Coordinates.getCoordinates());
     }
 
     class WeatherGetter extends AsyncTask<Void, Void, Void> {
