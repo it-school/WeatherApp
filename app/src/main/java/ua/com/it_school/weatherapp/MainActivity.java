@@ -65,32 +65,13 @@ public class MainActivity extends AppCompatActivity {
     int PERMISSION_ID = 44;
     FusedLocationProviderClient mFusedLocationClient;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        imageView = findViewById(R.id.imageView);
-        windImage = findViewById(R.id.windImage);
-        button = findViewById(R.id.buttonLoadData);
-        textViewMain = findViewById(R.id.textViewMain);
-        windTextView = findViewById(R.id.windTextView);
-        windTextView2 = findViewById(R.id.windTextView2);
-        tempTextView = findViewById(R.id.tempTextView);
-        jsonIn = "{\"coord\":{\"lon\":30.73,\"lat\":46.48},\"weather\":[{\"id\":800,\"main\":\"Clear\",\"description\":\"ясно\",\"icon\":\"01d\"}],\"base\":\"stations\",\"main\":{\"temp\":296.15,\"pressure\":1020,\"humidity\":33,\"temp_min\":296.15,\"temp_max\":296.15},\"visibility\":10000,\"wind\":{\"speed\":15,\"deg\":180},\"clouds\":{\"all\":0},\"dt\":1528381800,\"sys\":{\"type\":1,\"id\":7366,\"message\":0.0021,\"country\":\"UA\",\"sunrise\":1528337103,\"sunset\":1528393643},\"id\":698740,\"name\":\"Odessa\",\"cod\":200}";
-        text = "";
-        isDataLoaded = false;
-        isConnected = true;
-        message = "";
-        //   currWeatherURL = "http://api.openweathermap.org/data/2.5/weather?id=698740&appid=dac392b2d2745b3adf08ca26054d78c4&lang=ru";
-        currWeatherURL = "http://api.openweathermap.org/data/2.5/weather?lat=" + Coordinates.latitude + "&lon=" + Coordinates.longitude + "&appid=dac392b2d2745b3adf08ca26054d78c4&lang=ru";
-        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-        Location location = getLastLocation();
-        textViewMain.setText(location.getLatitude()+", "+location.getLongitude());
-        wg = new WeatherGetter(this);
-        wg.execute();
-    }
+    private LocationCallback mLocationCallback = new LocationCallback() {
+        @Override
+        public void onLocationResult(LocationResult locationResult) {
+            Location mLastLocation = locationResult.getLastLocation();
+            textViewMain.setText(mLastLocation.getLatitude() + ", " + mLastLocation.getLongitude());
+        }
+    };
 
     /**
      * Parsing of loaded weather data
@@ -269,9 +250,39 @@ public class MainActivity extends AppCompatActivity {
         textViewMain.setText(getString(R.string.currentCoords) + Coordinates.getCoordinates());
     }
 
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        imageView = findViewById(R.id.imageView);
+        windImage = findViewById(R.id.windImage);
+        button = findViewById(R.id.buttonLoadData);
+        textViewMain = findViewById(R.id.textViewMain);
+        windTextView = findViewById(R.id.windTextView);
+        windTextView2 = findViewById(R.id.windTextView2);
+        tempTextView = findViewById(R.id.tempTextView);
+        jsonIn = "{\"coord\":{\"lon\":30.73,\"lat\":46.48},\"weather\":[{\"id\":800,\"main\":\"Clear\",\"description\":\"ясно\",\"icon\":\"01d\"}],\"base\":\"stations\",\"main\":{\"temp\":296.15,\"pressure\":1020,\"humidity\":33,\"temp_min\":296.15,\"temp_max\":296.15},\"visibility\":10000,\"wind\":{\"speed\":15,\"deg\":180},\"clouds\":{\"all\":0},\"dt\":1528381800,\"sys\":{\"type\":1,\"id\":7366,\"message\":0.0021,\"country\":\"UA\",\"sunrise\":1528337103,\"sunset\":1528393643},\"id\":698740,\"name\":\"Odessa\",\"cod\":200}";
+        text = "";
+        isDataLoaded = false;
+        isConnected = true;
+        message = "";
+        //   currWeatherURL = "http://api.openweathermap.org/data/2.5/weather?id=698740&appid=dac392b2d2745b3adf08ca26054d78c4&lang=ru";
+        currWeatherURL = "http://api.openweathermap.org/data/2.5/weather?lat=" + Coordinates.latitude + "&lon=" + Coordinates.longitude + "&appid=dac392b2d2745b3adf08ca26054d78c4&lang=ru";
+        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        Location location = getLastLocation();
+        if (location == null) {
+            btnCurrentDeviceGPSCoordinates(this.getCurrentFocus());
+        }
+        wg = new WeatherGetter(this);
+        wg.execute();
+
+    }
+
     //--------------------------------
     @SuppressLint("MissingPermission")
-    private Location getLastLocation(){
+    private Location getLastLocation() {
         final Location[] location = {null};
         if (checkPermissions()) {
             if (isLocationEnabled()) {
@@ -297,9 +308,8 @@ public class MainActivity extends AppCompatActivity {
         return location[0];
     }
 
-
     @SuppressLint("MissingPermission")
-    private void requestNewLocationData(){
+    private void requestNewLocationData() {
 
         LocationRequest mLocationRequest = new LocationRequest();
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
@@ -311,25 +321,14 @@ public class MainActivity extends AppCompatActivity {
         mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
     }
 
-    private LocationCallback mLocationCallback = new LocationCallback() {
-        @Override
-        public void onLocationResult(LocationResult locationResult) {
-            Location mLastLocation = locationResult.getLastLocation();
-            textViewMain.setText(mLastLocation.getLatitude()+", " + mLastLocation.getLongitude());
-        }
-    };
-
     private boolean checkPermissions() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            return true;
-        }
-        return false;
+        return ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
     }
 
     private void requestPermissions() {
         ActivityCompat.requestPermissions(
-               this,
+                this,
                 new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
                 PERMISSION_ID
         );
@@ -353,13 +352,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onResume(){
+    public void onResume() {
         super.onResume();
         if (checkPermissions()) {
             getLastLocation();
         }
     }
-
-
-
 }

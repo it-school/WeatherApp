@@ -18,8 +18,6 @@ public final class WeatherInfo {
         isDay = day;
     }
 
-
-
     public int getPrecipitations() {
         return precipitations;
     }

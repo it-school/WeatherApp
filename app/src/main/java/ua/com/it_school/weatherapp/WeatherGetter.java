@@ -12,7 +12,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 class WeatherGetter extends AsyncTask<Void, Void, Void> {
     private MainActivity mainActivity;
@@ -40,7 +40,7 @@ class WeatherGetter extends AsyncTask<Void, Void, Void> {
             try {
                 is = new URL(url).openStream();
                 try {
-                    BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
+                    BufferedReader rd = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
                     try {
                         mainActivity.jsonIn = readAll(rd);
                     } catch (IOException e) {
