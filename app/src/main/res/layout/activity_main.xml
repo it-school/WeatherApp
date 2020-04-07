@@ -95,7 +95,7 @@
         android:layout_marginEnd="4dp"
         android:layout_marginBottom="8dp"
         android:layout_weight="1"
-        android:onClick="btnCurrentGPSCoordinates"
+        android:onClick="btnCurrentDeviceGPSCoordinates"
         android:padding="1dp"
         android:text="@string/GPS"
         android:textSize="12sp"

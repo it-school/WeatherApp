@@ -9,4 +9,6 @@
     <string name="windSpeed">м/с</string>
     <string name="noData">Немає даних про погоду</string>
     <string name="streetView">Вулиці</string>
+    <string name="selectedCoords">"Обрані координати: "</string>
+    <string name="currentCoords">"Координати пристрою: "</string>
 </resources>

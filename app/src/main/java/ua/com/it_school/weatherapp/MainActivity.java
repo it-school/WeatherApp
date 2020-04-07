@@ -1,16 +1,19 @@
 package ua.com.it_school.weatherapp;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.location.Location;
 import android.location.LocationManager;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Looper;
+import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -21,25 +24,25 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.nodes.Document;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.net.URL;
-import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
 public class MainActivity extends AppCompatActivity {
-
     ImageView imageView;
     ImageView windImage;
     Button button;
@@ -59,6 +62,8 @@ public class MainActivity extends AppCompatActivity {
     WeatherGetter wg;
     String message;
     private LocationManager locationManager;
+    int PERMISSION_ID = 44;
+    FusedLocationProviderClient mFusedLocationClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,7 +85,10 @@ public class MainActivity extends AppCompatActivity {
         //   currWeatherURL = "http://api.openweathermap.org/data/2.5/weather?id=698740&appid=dac392b2d2745b3adf08ca26054d78c4&lang=ru";
         currWeatherURL = "http://api.openweathermap.org/data/2.5/weather?lat=" + Coordinates.latitude + "&lon=" + Coordinates.longitude + "&appid=dac392b2d2745b3adf08ca26054d78c4&lang=ru";
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-        wg = new WeatherGetter();
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        Location location = getLastLocation();
+        textViewMain.setText(location.getLatitude()+", "+location.getLongitude());
+        wg = new WeatherGetter(this);
         wg.execute();
     }
 
@@ -142,7 +150,7 @@ public class MainActivity extends AppCompatActivity {
         if (wg.getStatus() == AsyncTask.Status.RUNNING)
             wg.cancel(true);
 
-        wg = new WeatherGetter();
+        wg = new WeatherGetter(this);
         wg.execute();
     }
 
@@ -188,6 +196,7 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Opens Google Maps to get new coordinates using long tap
+     *
      * @param view
      */
     public void btnMapOpen(View view) {
@@ -218,7 +227,7 @@ public class MainActivity extends AppCompatActivity {
             Coordinates.longitude = data.getDoubleExtra("longitude", Coordinates.longitude);
             Coordinates.latitude = data.getDoubleExtra("latitude", Coordinates.latitude);
 
-            textViewMain.setText(String.format(Locale.ENGLISH, "%.2f, %.2f", Coordinates.longitude, Coordinates.latitude));
+            textViewMain.setText(getString(R.string.selectedCoords) + Coordinates.getCoordinates());
             btnLoadWeatherData(getCurrentFocus());
         }
     }
@@ -252,77 +261,105 @@ public class MainActivity extends AppCompatActivity {
      *
      * @param view
      */
-    public void btnCurrentGPSCoordinates(View view) {
+    public void btnCurrentDeviceGPSCoordinates(View view) {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             Coordinates.latitude = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER).getLatitude();
             Coordinates.longitude = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER).getLongitude();
         }
-        textViewMain.setText("Current device coordinates: " + Coordinates.getCoordinates());
+        textViewMain.setText(getString(R.string.currentCoords) + Coordinates.getCoordinates());
     }
 
-    class WeatherGetter extends AsyncTask<Void, Void, Void> {
-        private String readAll(Reader rd) throws IOException {
-            StringBuilder sb = new StringBuilder();
-            int cp;
-            while ((cp = rd.read()) != -1) {
-                sb.append((char) cp);
-            }
-            return sb.toString();
-        }
-
-        public void ConnectAndGetData(String url) {
-            InputStream is = null;
-
-            ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-            NetworkInfo netInfo = cm.getActiveNetworkInfo();
-
-            if (netInfo.isConnected()) {
-                try {
-                    is = new URL(url).openStream();
-                    try {
-                        BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
-                        try {
-                            jsonIn = readAll(rd);
-                        } catch (IOException e) {
-                            e.printStackTrace();
+    //--------------------------------
+    @SuppressLint("MissingPermission")
+    private Location getLastLocation(){
+        final Location[] location = {null};
+        if (checkPermissions()) {
+            if (isLocationEnabled()) {
+                mFusedLocationClient.getLastLocation().addOnCompleteListener(
+                        new OnCompleteListener<Location>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Location> task) {
+                                location[0] = task.getResult();
+                                if (location[0] == null) {
+                                    requestNewLocationData();
+                                }
+                            }
                         }
-                    } finally {
-                        try {
-                            is.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
+                );
             } else {
-                isConnected = false;
+                Toast.makeText(this, "Turn on location", Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                startActivity(intent);
+            }
+        } else {
+            requestPermissions();
+        }
+        return location[0];
+    }
+
+
+    @SuppressLint("MissingPermission")
+    private void requestNewLocationData(){
+
+        LocationRequest mLocationRequest = new LocationRequest();
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        mLocationRequest.setInterval(0);
+        mLocationRequest.setFastestInterval(0);
+        mLocationRequest.setNumUpdates(1);
+
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
+    }
+
+    private LocationCallback mLocationCallback = new LocationCallback() {
+        @Override
+        public void onLocationResult(LocationResult locationResult) {
+            Location mLastLocation = locationResult.getLastLocation();
+            textViewMain.setText(mLastLocation.getLatitude()+", " + mLastLocation.getLongitude());
+        }
+    };
+
+    private boolean checkPermissions() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            return true;
+        }
+        return false;
+    }
+
+    private void requestPermissions() {
+        ActivityCompat.requestPermissions(
+               this,
+                new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
+                PERMISSION_ID
+        );
+    }
+
+    private boolean isLocationEnabled() {
+        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(
+                LocationManager.NETWORK_PROVIDER
+        );
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == PERMISSION_ID) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                getLastLocation();
             }
         }
+    }
 
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            ConnectAndGetData(currWeatherURL);
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void result) {
-            ParseWeather();
-            drawWeather();
-        }
-
-        @Override
-        protected void onCancelled() {
-            super.onCancelled();
-            Log.d("", "Process canceling");
+    @Override
+    public void onResume(){
+        super.onResume();
+        if (checkPermissions()) {
+            getLastLocation();
         }
     }
+
+
+
 }
